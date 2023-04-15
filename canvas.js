@@ -18,7 +18,7 @@ let lastPos = {
 // 调用自动设置画板大小的函数
 autoSetCanvasSize(canvasEl)
 // 调用设置鼠标监听器的函数
-setMouseListeners(canvasEl, context)
+listenToUser(canvasEl, context)
 // 调用初始化橡皮擦和画笔的函数
 initEraser(eraserEl, brushEl, actionsEl)
 
@@ -32,46 +32,86 @@ function autoSetCanvasSize(canvasEl) {
     }
 }
 // 设置鼠标监听器的函数
-function setMouseListeners(canvasEl, context) {
-    // 鼠标按下事件
-    canvasEl.onmousedown = function (event) {
-        let x = event.clientX
-        let y = event.clientY
-        // 设置绘制状态为true
-        using = true
-        // 判断当前是否为擦除状态，是则清除一小块区域，否则记录上一次的位置
-        if (isErase) {
-            context.clearRect(x, y, 10, 10)
-        } else {
-            lastPos = {
-                x,
-                y
+function listenToUser(canvasEl, context) {
+    if (document.body.ontouchstart !== undefined) {
+        // 
+        canvasEl.ontouchstart = function (event) {
+            let x = event.touches[0].clientX
+            let y = event.touches[0].clientY
+            using = true
+            if (isErase) {
+                context.clearRect(x, y, 10, 10)
+            } else {
+                lastPos = {
+                    x,
+                    y
+                }
             }
         }
-    }
-    // 鼠标移动事件
-    canvasEl.onmousemove = function (event) {
-        // 如果绘制状态为false，退出函数
-        if (!using) {
-            return
-        }
-        let x = event.clientX
-        let y = event.clientY
-        // 判断当前是否为擦除状态，是则清除一小块区域，否则绘制一条线段并记录当前位置为上一次位置
-        if (isErase) {
-            context.clearRect(x - 5, y - 5, 10, 10)
-        } else {
-            drawLine(lastPos.x, lastPos.y, x, y)
-            lastPos = {
-                x,
-                y
+        // 
+        canvasEl.ontouchmove = function (event) {
+            if (!using) {
+                return
+            }
+            let x = event.touches[0].clientX
+            let y = event.touches[0].clientY
+            if (isErase) {
+                context.clearRect(x - 5, y - 5, 10, 10)
+            } else {
+                drawLine(lastPos.x, lastPos.y, x, y)
+                lastPos = {
+                    x,
+                    y
+                }
             }
         }
+        // 
+        canvasEl.ontouchend = function (event) {
+            using = false
+        }
+    } else {
+        // 鼠标按下事件
+        canvasEl.onmousedown = function (event) {
+            let x = event.clientX
+            let y = event.clientY
+            // 设置绘制状态为true
+            using = true
+            // 判断当前是否为擦除状态，是则清除一小块区域，否则记录上一次的位置
+            if (isErase) {
+                context.clearRect(x, y, 10, 10)
+            } else {
+                lastPos = {
+                    x,
+                    y
+                }
+            }
+        }
+        // 鼠标移动事件
+        canvasEl.onmousemove = function (event) {
+            // 如果绘制状态为false，退出函数
+            if (!using) {
+                return
+            }
+            let x = event.clientX
+            let y = event.clientY
+            // 判断当前是否为擦除状态，是则清除一小块区域，否则绘制一条线段并记录当前位置为上一次位置
+            if (isErase) {
+                context.clearRect(x - 5, y - 5, 10, 10)
+            } else {
+                drawLine(lastPos.x, lastPos.y, x, y)
+                lastPos = {
+                    x,
+                    y
+                }
+            }
+        }
+        // 鼠标松开事件，设置绘制状态为false
+        canvasEl.onmouseup = function (event) {
+            using = false
+        }
+
     }
-    // 鼠标松开事件，设置绘制状态为false
-    canvasEl.onmouseup = function (event) {
-        using = false
-    }
+
 }
 // 初始化橡皮擦和画笔的函数
 function initEraser(eraserEl, brushEl, actionsEl) {
