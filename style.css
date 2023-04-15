@@ -1,0 +1,30 @@
+* {
+	margin: 0;
+	padding: 0;
+}
+
+#mycanvas {
+	background: skyblue;
+}
+
+/* 画板动作选项位置：固定定位，位于浏览器窗口的左下角。 */
+.actions {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+}
+
+/* 初始状态下，画笔是不显示，橡皮擦是显示的 */
+.actions > #brush {
+	display: none;
+}
+
+/* 当点击切换橡皮擦时，分别控制画笔和橡皮擦显示状态 */
+/* 画笔显示 */
+.actions.is-painting > #brush {
+	display: inline-block;
+}
+/* 橡皮擦是隐藏 */
+.actions.is-painting > #eraser {
+	display: none;
+}
