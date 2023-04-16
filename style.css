@@ -1,30 +1,115 @@
+/* 重置所有元素的内外边距为 0 */
 * {
 	margin: 0;
 	padding: 0;
 }
 
-#mycanvas {
+/* #mycanvas {
 	background: skyblue;
-}
+} */
 
 /* 画板动作选项位置：固定定位，位于浏览器窗口的左下角。 */
-.actions {
+/* .actions {
 	position: fixed;
 	bottom: 10px;
 	left: 0;
-}
+} */
 
 /* 初始状态下，画笔是不显示，橡皮擦是显示的 */
-.actions > #brush {
+/* .actions > #brush {
 	display: none;
-}
+} */
 
 /* 当点击切换橡皮擦时，分别控制画笔和橡皮擦显示状态 */
 /* 画笔显示 */
-.actions.is-painting > #brush {
+/* .actions.is-painting > #brush {
 	display: inline-block;
-}
+} */
 /* 橡皮擦是隐藏 */
-.actions.is-painting > #eraser {
+/* .actions.is-painting > #eraser {
 	display: none;
+} */
+
+/* /* 隐藏 body 元素的滚动条 */ */
+body {
+	overflow: hidden;
+}
+/* 画笔、橡皮擦等图标的基础样式 */
+.icon {
+	width: 1em;
+	height: 1em;
+	vertical-align: -0.5em;
+	fill: currentColor;
+	overflow: hidden;
+}
+/* 动作区域，固定在底部左侧 */
+.actions {
+	padding: 20px;
+	position: fixed;
+	top: 10px;
+	left: 0;
+}
+/* 动作区域的按钮样式 */
+.actions svg {
+	width: 2em;
+	height: 2em;
+	transition: all .3s;
+	margin: 0 10px;
+}
+.actions svg.active {
+	fill:red;
+	/* 放大被选中的颜色圆点，让其突出显示。 */
+	transform: scale(1.2);
+}
+/* 颜色选择器的样式 */
+.colors {
+	position: fixed;
+	top: 100px;
+	left: 20px;
+	list-style-type: none;
+}
+/* 每个颜色块的样式 */
+.colors > li {
+	width: 30px;;
+	height: 30px;
+	border: 2px solid silver;
+	margin: 10px 0;
+	border-radius: 50%;
+	transition: all 0.3s;
+}
+.colors > li.black {
+	background: black;
+}
+.colors > li.red {
+	background: red;
+}
+.colors > li.green {
+	background: green;
+}
+.colors > li.blue {
+	background: blue;
+}
+/* 当前激活的颜色块的样式 */
+.colors > li.active {
+	box-shadow:  0 0 3px rgba(0, 0, 0, 0.95);
+	transform: scale(1.2);
+}
+.sizes {
+	position: fixed;
+	left: 80px;
+	top: 90px;
+	list-style: none;
+}
+.sizes > li {
+	margin: 20px 0;
+}
+.sizes > .thin {
+	height: 0;
+	width: 20px;
+	border-top: 2px solid black;
+}
+.sizes > .thick {
+	height: 0;
+	width: 20px;
+	border-top: 4px solid black;
 }

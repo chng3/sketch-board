@@ -1,10 +1,22 @@
 // 获取画布元素和上下文
 let canvasEl = document.querySelector('#mycanvas')
 let context = canvasEl.getContext('2d')
-// 获取橡皮擦和画笔元素，以及操作区域元素
+// 获取橡皮擦和画笔元素
 let eraserEl = document.querySelector('#eraser')
 let brushEl = document.querySelector('#brush')
-let actionsEl = document.querySelector('.actions')
+// 获取动作区域元素
+let blackEl = document.querySelector('#black')
+let redEl = document.querySelector('#red')
+let greenEl = document.querySelector('#green')
+let blueEl = document.querySelector('#blue')
+let thinEl = document.querySelector('#thin')
+let thickEl = document.querySelector('#thick')
+let colorsLiEls = document.querySelector('ol.colors > li')
+let clearEl = document.querySelector('#clear')
+let sizesLiEls = document.querySelector('ol.sizes > li')
+// TODO: 完成事件点击，重构任务
+// 设置默认画笔大小为5
+let lineWidth = 5
 // 是否正在使用鼠标
 let using = false
 // 是否处于橡皮擦模式
@@ -147,7 +159,7 @@ function drawCircle(x, y, radius) {
 function drawLine(x1, y1, x2, y2) {
     context.beginPath()
     context.moveTo(x1, y1)
-    context.lineWidth = 5
+    context.lineWidth = lineWidth
     context.lineTo(x2, y2)
     context.stroke()
     context.closePath()
