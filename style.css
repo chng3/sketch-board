@@ -3,10 +3,12 @@
 	margin: 0;
 	padding: 0;
 }
-
-/* #mycanvas {
-	background: skyblue;
-} */
+/* 固定在页面左上角，不随页面滚动而移动 */
+#mycanvas {
+	position: fixed;
+	top:0;
+	left:0;
+}
 
 /* 画板动作选项位置：固定定位，位于浏览器窗口的左下角。 */
 /* .actions {
