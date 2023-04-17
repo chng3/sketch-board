@@ -11,10 +11,11 @@ let greenEl = document.querySelector('#green')
 let blueEl = document.querySelector('#blue')
 let thinEl = document.querySelector('#thin')
 let thickEl = document.querySelector('#thick')
-let colorsLiEls = document.querySelector('ol.colors > li')
+let colorsLiEls = document.querySelectorAll('ol.colors > li')
 let clearEl = document.querySelector('#clear')
-let sizesLiEls = document.querySelector('ol.sizes > li')
-// TODO: 完成事件点击，重构任务
+let saveEl = document.querySelector('#save')
+let sizesLiEls = document.querySelectorAll('ol.sizes > li')
+
 // 设置默认画笔大小为5
 let lineWidth = 5
 // 是否正在使用鼠标
@@ -31,8 +32,16 @@ let lastPos = {
 autoSetCanvasSize(canvasEl)
 // 调用设置鼠标监听器的函数
 listenToUser(canvasEl, context)
-// 调用初始化橡皮擦和画笔的函数
-initEraser(eraserEl, brushEl, actionsEl)
+// 调用绑定点击切换橡皮擦和画笔的事件处理函数
+bindSwitchEventHandlers(eraserEl, brushEl)
+// 调用绑定点击切换颜色面板的处理函数
+bindColorsHandlers()
+// 调用绑定点击切换画笔大小的处理函数
+bindSizesHandlers()
+// 调用清空整个画板事件函数 
+bindClearHandler()
+// 调用画布内容保存为PNG图片处理程序
+bindSavePngHandler()
 
 // 自动设置画板大小的函数
 function autoSetCanvasSize(canvasEl) {
@@ -45,12 +54,18 @@ function autoSetCanvasSize(canvasEl) {
 }
 // 设置鼠标监听器的函数
 function listenToUser(canvasEl, context) {
+    // TODO: 重构移动画笔时处理函数,分为两个处理函数1、bindTouchEventHandlers 2、bindMouseEventHandlers
+    // 判断是否在移动设备使用或者PC上使用
     if (document.body.ontouchstart !== undefined) {
-        // 
+        // 处理在触摸设备上开始绘制
         canvasEl.ontouchstart = function (event) {
+            // 获取当前触摸点的坐标
             let x = event.touches[0].clientX
             let y = event.touches[0].clientY
+            // 将using标志设置为true，表示当前正在绘制
             using = true
+            // 如果是使用橡皮擦工具，则在触摸点位置上擦除一个小矩形，
+            // 否则记录当前触摸点的坐标作为上一次的位置
             if (isErase) {
                 context.clearRect(x, y, 10, 10)
             } else {
@@ -60,25 +75,32 @@ function listenToUser(canvasEl, context) {
                 }
             }
         }
-        // 
+        // 实现了在移动设备上触摸画布时绘制图形或擦除图形的功能
+        // 为canvas元素添加touchmove事件的处理函数
         canvasEl.ontouchmove = function (event) {
+            // 如果当前不是绘画状态，即鼠标没有按下，则直接返回
             if (!using) {
                 return
             }
+            // 获取当前触摸点的横纵坐标
             let x = event.touches[0].clientX
             let y = event.touches[0].clientY
+            // 如果是橡皮擦模式，则清除当前触摸点周围的矩形区域，以实现擦除的效果
             if (isErase) {
                 context.clearRect(x - 5, y - 5, 10, 10)
             } else {
+                // 如果是绘画模式，则调用drawLine()函数在上一个点和当前点之间绘制一条线段
                 drawLine(lastPos.x, lastPos.y, x, y)
+                // 更新上一个点的位置为当前点的位置，以便下一次移动时使用
                 lastPos = {
                     x,
                     y
                 }
             }
         }
-        // 
+        // 绑定touchend事件的处理函数
         canvasEl.ontouchend = function (event) {
+            // 当手指离开屏幕时，using的值被设置为false，标识着画笔不再绘制
             using = false
         }
     } else {
@@ -125,21 +147,121 @@ function listenToUser(canvasEl, context) {
     }
 
 }
-// 初始化橡皮擦和画笔的函数
-function initEraser(eraserEl, brushEl, actionsEl) {
+// 绑定保存画布为PNG图片的事件处理
+function bindSavePngHandler() {
+    saveEl.onclick = function () {
+        // 将画布的内容转换为DataURL格式的PNG图片数据，并将其赋值给url变量
+        let url = canvasEl.toDataURL('image/png')
+        // 创建一个<a>标签元素，并将其添加到页面的<body>元素中
+        let a = document.createElement('a')
+        document.body.appendChild(a)
+        // 将url设置为<a>标签元素的href属性，使其成为下载链接
+        a.href = url
+        // 将下载链接的文件名设置为'画板截图'
+        a.download = '画板截图'
+        // 将<a>标签元素的target属性设置为'_blank'，以在新窗口中打开链接
+        a.target = '_blank'
+        // 模拟用户点击下载链接，以触发浏览器下载PNG图片
+        a.click()
+    }
+}
+// 清空整个画板
+function bindClearHandler() {
+    clearEl.onclick = function () {
+        context.clearRect(0, 0, canvasEl.width, canvasEl.height)
+    }
+}
+// 绑定点击切换画笔大小的处理函数
+function bindSizesHandlers() {
+    thinEl.onclick = function () {
+        lineWidth = 5
+        // 循环删除每一个颜色画板样式
+        sizesLiEls.forEach(liEl => {
+            liEl.classList.remove('active')
+        })
+        // 为选中的红色画板添加样式
+        thinEl.classList.add('active')
+    }
+    thickEl.onclick = function () {
+        lineWidth = 10
+        // 循环删除每一个颜色画板样式
+        sizesLiEls.forEach(liEl => {
+            liEl.classList.remove('active')
+        })
+        // 为选中的红色画板添加样式
+        thickEl.classList.add('active')
+    }
+}
+// 绑定点击切换颜色面板的处理函数
+function bindColorsHandlers() {
+    // 选中红色画笔时
+    redEl.onclick = function () {
+        // 覆盖掉默认需要放大的颜色
+        context.fillStyle = 'red'
+        context.strokeStyle = 'red'
+        // 循环删除每一个颜色画板样式
+        colorsLiEls.forEach(liEl => {
+            liEl.classList.remove('active')
+        })
+        // 为选中的红色画板添加样式
+        redEl.classList.add('active')
+    }
+    // 选中黑色画笔时
+    blackEl.onclick = function () {
+        // 覆盖掉默认需要放大的颜色
+        context.fillStyle = 'black'
+        context.strokeStyle = 'black'
+        // 循环删除每一个颜色画板样式
+        colorsLiEls.forEach(liEl => {
+            liEl.classList.remove('active')
+        })
+        // 为选中的黑色画板添加样式
+        blackEl.classList.add('active')
+    }
+    // 选中绿色画笔时
+    greenEl.onclick = function () {
+        // 覆盖掉默认需要放大的颜色
+        context.fillStyle = 'green'
+        context.strokeStyle = 'green'
+        // 循环删除每一个颜色画板样式
+        colorsLiEls.forEach(liEl => {
+            liEl.classList.remove('active')
+        })
+        // 为选中的绿色画板添加样式
+        greenEl.classList.add('active')
+    }
+    // 选中蓝色画笔时
+    blueEl.onclick = function () {
+        // 覆盖掉默认需要放大的颜色
+        context.fillStyle = 'blue'
+        context.strokeStyle = 'blue'
+        // 循环删除每一个颜色画板样式
+        colorsLiEls.forEach(liEl => {
+            liEl.classList.remove('active')
+        })
+        // 为选中的蓝色画板添加样式
+        blueEl.classList.add('active')
+    }
+}
+// 绑定切换橡皮擦和画笔的事件处理函数
+function bindSwitchEventHandlers(eraserEl, brushEl) {
     // 点击橡皮擦按钮
     eraserEl.onclick = function () {
         // 设置选择橡皮擦
         isErase = true
-        // 添加一个class：当用户点击橡皮擦时，类名“is-painting”会被添加到“actions”元素中，此时画笔会显示，橡皮擦会隐藏
-        actionsEl.className = 'actions is-painting'
+        // 为橡皮擦的样式添加选中状态
+        eraserEl.classList.add('active')
+        // 移除画笔的选中状态样式
+        brushEl.classList.remove('active')
     }
     // 点击画笔按钮
     brushEl.onclick = function () {
         // 设置选择画笔(关掉选择橡皮擦)
         isErase = false
-        // 添加一个class
-        actionsEl.className = 'actions'
+        // 为画笔的样式添加选中状态
+        brushEl.classList.add('active')
+        // 移除橡皮擦的选中状态样式
+        eraserEl.classList.remove('active')
     }
 }
 // 设置画板大小的函数
