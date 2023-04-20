@@ -54,98 +54,108 @@ function autoSetCanvasSize(canvasEl) {
 }
 // 设置鼠标监听器的函数
 function listenToUser(canvasEl, context) {
-    // TODO: 重构移动画笔时处理函数,分为两个处理函数1、bindTouchEventHandlers 2、bindMouseEventHandlers
+    // 分为两个处理函数1、bindTouchEventHandlers 2、bindMouseEventHandlers
     // 判断是否在移动设备使用或者PC上使用
     if (document.body.ontouchstart !== undefined) {
-        // 处理在触摸设备上开始绘制
-        canvasEl.ontouchstart = function (event) {
-            // 获取当前触摸点的坐标
-            let x = event.touches[0].clientX
-            let y = event.touches[0].clientY
-            // 将using标志设置为true，表示当前正在绘制
-            using = true
-            // 如果是使用橡皮擦工具，则在触摸点位置上擦除一个小矩形，
-            // 否则记录当前触摸点的坐标作为上一次的位置
-            if (isErase) {
-                context.clearRect(x, y, 10, 10)
-            } else {
-                lastPos = {
-                    x,
-                    y
-                }
-            }
-        }
-        // 实现了在移动设备上触摸画布时绘制图形或擦除图形的功能
-        // 为canvas元素添加touchmove事件的处理函数
-        canvasEl.ontouchmove = function (event) {
-            // 如果当前不是绘画状态，即鼠标没有按下，则直接返回
-            if (!using) {
-                return
-            }
-            // 获取当前触摸点的横纵坐标
-            let x = event.touches[0].clientX
-            let y = event.touches[0].clientY
-            // 如果是橡皮擦模式，则清除当前触摸点周围的矩形区域，以实现擦除的效果
-            if (isErase) {
-                context.clearRect(x - 5, y - 5, 10, 10)
-            } else {
-                // 如果是绘画模式，则调用drawLine()函数在上一个点和当前点之间绘制一条线段
-                drawLine(lastPos.x, lastPos.y, x, y)
-                // 更新上一个点的位置为当前点的位置，以便下一次移动时使用
-                lastPos = {
-                    x,
-                    y
-                }
-            }
-        }
-        // 绑定touchend事件的处理函数
-        canvasEl.ontouchend = function (event) {
-            // 当手指离开屏幕时，using的值被设置为false，标识着画笔不再绘制
-            using = false
-        }
+        // 调用在触摸设备上事件处理函数
+        bindTouchEventHandlers()
     } else {
-        // 鼠标按下事件
-        canvasEl.onmousedown = function (event) {
-            let x = event.clientX
-            let y = event.clientY
-            // 设置绘制状态为true
-            using = true
-            // 判断当前是否为擦除状态，是则清除一小块区域，否则记录上一次的位置
-            if (isErase) {
-                context.clearRect(x, y, 10, 10)
-            } else {
-                lastPos = {
-                    x,
-                    y
-                }
-            }
-        }
-        // 鼠标移动事件
-        canvasEl.onmousemove = function (event) {
-            // 如果绘制状态为false，退出函数
-            if (!using) {
-                return
-            }
-            let x = event.clientX
-            let y = event.clientY
-            // 判断当前是否为擦除状态，是则清除一小块区域，否则绘制一条线段并记录当前位置为上一次位置
-            if (isErase) {
-                context.clearRect(x - 5, y - 5, 10, 10)
-            } else {
-                drawLine(lastPos.x, lastPos.y, x, y)
-                lastPos = {
-                    x,
-                    y
-                }
-            }
-        }
-        // 鼠标松开事件，设置绘制状态为false
-        canvasEl.onmouseup = function (event) {
-            using = false
-        }
-
+        // 调用鼠标按下事件处理函数
+        bindMouseEventHandlers()
     }
 
+}
+// 在触摸设备上事件处理函数
+function bindTouchEventHandlers() {
+    // 处理在触摸设备上开始绘制
+    canvasEl.ontouchstart = function (event) {
+        // 获取当前触摸点的坐标
+        let x = event.touches[0].clientX
+        let y = event.touches[0].clientY
+        // 将using标志设置为true，表示当前正在绘制
+        using = true
+        // 如果是使用橡皮擦工具，则在触摸点位置上擦除一个小矩形，
+        // 否则记录当前触摸点的坐标作为上一次的位置
+        if (isErase) {
+            context.clearRect(x, y, 10, 10)
+        } else {
+            lastPos = {
+                x,
+                y
+            }
+        }
+    }
+    // 实现了在移动设备上触摸画布时绘制图形或擦除图形的功能
+    // 为canvas元素添加touchmove事件的处理函数
+    canvasEl.ontouchmove = function (event) {
+        // 如果当前不是绘画状态，即鼠标没有按下，则直接返回
+        if (!using) {
+            return
+        }
+        // 获取当前触摸点的横纵坐标
+        let x = event.touches[0].clientX
+        let y = event.touches[0].clientY
+        // 如果是橡皮擦模式，则清除当前触摸点周围的矩形区域，以实现擦除的效果
+        if (isErase) {
+            context.clearRect(x - 5, y - 5, 10, 10)
+        } else {
+            // 如果是绘画模式，则调用drawLine()函数在上一个点和当前点之间绘制一条线段
+            drawLine(lastPos.x, lastPos.y, x, y)
+            // 更新上一个点的位置为当前点的位置，以便下一次移动时使用
+            lastPos = {
+                x,
+                y
+            }
+        }
+    }
+    // 绑定touchend事件的处理函数
+    canvasEl.ontouchend = function (event) {
+        // 当手指离开屏幕时，using的值被设置为false，标识着画笔不再绘制
+        using = false
+    }
+}
+// 鼠标按下事件处理函数
+function bindMouseEventHandlers() {
+    // 鼠标按下事件
+    canvasEl.onmousedown = function (event) {
+        let x = event.clientX
+        let y = event.clientY
+        // 设置绘制状态为true
+        using = true
+        // 判断当前是否为擦除状态，是则清除一小块区域，否则记录上一次的位置
+        if (isErase) {
+            context.clearRect(x, y, 10, 10)
+        } else {
+            lastPos = {
+                x,
+                y
+            }
+        }
+    }
+    // 鼠标移动事件
+    canvasEl.onmousemove = function (event) {
+        // 如果绘制状态为false，退出函数
+        if (!using) {
+            return
+        }
+        let x = event.clientX
+        let y = event.clientY
+        // 判断当前是否为擦除状态，是则清除一小块区域，否则绘制一条线段并记录当前位置为上一次位置
+        if (isErase) {
+            context.clearRect(x - 5, y - 5, 10, 10)
+        } else {
+            // drawCircle(lastPos.x, lastPos.y, 10)
+            drawLine(lastPos.x, lastPos.y, x, y)
+            lastPos = {
+                x,
+                y
+            }
+        }
+    }
+    // 鼠标松开事件，设置绘制状态为false
+    canvasEl.onmouseup = function (event) {
+        using = false
+    }
 }
 // 绑定保存画布为PNG图片的事件处理
 function bindSavePngHandler() {
@@ -196,8 +206,9 @@ function bindSizesHandlers() {
 function bindColorsHandlers() {
     // 选中红色画笔时
     redEl.onclick = function () {
-        // 覆盖掉默认需要放大的颜色
+        // 覆盖改变绘制图形的填充颜色
         context.fillStyle = 'red'
+        // 覆盖改变绘制线条的颜色
         context.strokeStyle = 'red'
         // 循环删除每一个颜色画板样式
         colorsLiEls.forEach(liEl => {
@@ -208,8 +219,9 @@ function bindColorsHandlers() {
     }
     // 选中黑色画笔时
     blackEl.onclick = function () {
-        // 覆盖掉默认需要放大的颜色
+        // 覆盖改变绘制图形的填充颜色
         context.fillStyle = 'black'
+        // 覆盖改变绘制线条的颜色
         context.strokeStyle = 'black'
         // 循环删除每一个颜色画板样式
         colorsLiEls.forEach(liEl => {
@@ -220,8 +232,9 @@ function bindColorsHandlers() {
     }
     // 选中绿色画笔时
     greenEl.onclick = function () {
-        // 覆盖掉默认需要放大的颜色
+        // 覆盖改变绘制图形的填充颜色
         context.fillStyle = 'green'
+        // 覆盖改变绘制线条的颜色
         context.strokeStyle = 'green'
         // 循环删除每一个颜色画板样式
         colorsLiEls.forEach(liEl => {
@@ -232,8 +245,9 @@ function bindColorsHandlers() {
     }
     // 选中蓝色画笔时
     blueEl.onclick = function () {
-        // 覆盖掉默认需要放大的颜色
+        // 覆盖改变绘制图形的填充颜色
         context.fillStyle = 'blue'
+        // 覆盖改变绘制线条的颜色
         context.strokeStyle = 'blue'
         // 循环删除每一个颜色画板样式
         colorsLiEls.forEach(liEl => {
@@ -269,7 +283,7 @@ function setCanvasSize(canvasEl) {
     canvasEl.width = document.documentElement.clientWidth
     canvasEl.height = document.documentElement.clientHeight
 }
-
+// TODO: 待添加绘制图形等功能
 // 绘制圆圈
 function drawCircle(x, y, radius) {
     context.beginPath()
@@ -277,7 +291,7 @@ function drawCircle(x, y, radius) {
     context.fill()
 }
 
-// 绘制一条线段
+// 绘制线段
 function drawLine(x1, y1, x2, y2) {
     context.beginPath()
     context.moveTo(x1, y1)
