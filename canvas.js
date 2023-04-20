@@ -185,20 +185,20 @@ function bindClearHandler() {
 function bindSizesHandlers() {
     thinEl.onclick = function () {
         lineWidth = 5
-        // 循环删除每一个颜色画板样式
+        // 循环删除每一个画笔样式
         sizesLiEls.forEach(liEl => {
             liEl.classList.remove('active')
         })
-        // 为选中的红色画板添加样式
+        // 为选中的画笔添加样式
         thinEl.classList.add('active')
     }
     thickEl.onclick = function () {
         lineWidth = 10
-        // 循环删除每一个颜色画板样式
+        // 循环删除每一个画笔样式
         sizesLiEls.forEach(liEl => {
             liEl.classList.remove('active')
         })
-        // 为选中的红色画板添加样式
+        // 为选中的画笔添加样式
         thickEl.classList.add('active')
     }
 }
