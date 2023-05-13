@@ -276,6 +276,8 @@ function bindSwitchEventHandlers(eraserEl, circleEl, brushEl) {
     brushEl.onclick = function () {
         // 设置选择画笔(关掉选择橡皮擦)
         isErase = false
+        // 关闭圆形
+        isCircle = false
         // 为画笔的样式添加选中状态
         brushEl.classList.add('active')
         // 移除橡皮擦的选中状态样式
@@ -285,7 +287,7 @@ function bindSwitchEventHandlers(eraserEl, circleEl, brushEl) {
     circleEl.onclick = function () {
         // 设置选择画笔(关掉选择橡皮擦)
         isErase = false
-        // 开启正方形
+        // 开启圆形
         isCircle = true
         // TODO: 为正方形加红色边框
     }
