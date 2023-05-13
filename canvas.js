@@ -1,9 +1,10 @@
 // 获取画布元素和上下文
 let canvasEl = document.querySelector('#mycanvas')
 let context = canvasEl.getContext('2d')
-// 获取橡皮擦和画笔元素
+// 获取橡皮擦、画笔和正方形元素
 let eraserEl = document.querySelector('#eraser')
 let brushEl = document.querySelector('#brush')
+let circleEl = document.querySelector('#circle')
 // 获取动作区域元素
 let blackEl = document.querySelector('#black')
 let redEl = document.querySelector('#red')
@@ -22,6 +23,8 @@ let lineWidth = 5
 let using = false
 // 是否处于橡皮擦模式
 let isErase = false
+// 是否处于绘制正方形模式 
+let isCircle = false
 // 记录上一个鼠标位置
 let lastPos = {
     x: undefined,
@@ -30,10 +33,10 @@ let lastPos = {
 
 // 调用自动设置画板大小的函数
 autoSetCanvasSize(canvasEl)
-// 调用设置鼠标监听器的函数
+// 调用监听器的函数
 listenToUser(canvasEl, context)
-// 调用绑定点击切换橡皮擦和画笔的事件处理函数
-bindSwitchEventHandlers(eraserEl, brushEl)
+// 调用绑定点击切换橡皮擦、正方形和画笔的事件处理函数
+bindSwitchEventHandlers(eraserEl, circleEl, brushEl)
 // 调用绑定点击切换颜色面板的处理函数
 bindColorsHandlers()
 // 调用绑定点击切换画笔大小的处理函数
@@ -143,8 +146,9 @@ function bindMouseEventHandlers() {
         // 判断当前是否为擦除状态，是则清除一小块区域，否则绘制一条线段并记录当前位置为上一次位置
         if (isErase) {
             context.clearRect(x - 5, y - 5, 10, 10)
-        } else {
-            // drawCircle(lastPos.x, lastPos.y, 10)
+        } else if(isCircle) {
+            drawCircle(lastPos.x, lastPos.y, 10)
+        } else { 
             drawLine(lastPos.x, lastPos.y, x, y)
             lastPos = {
                 x,
@@ -258,7 +262,7 @@ function bindColorsHandlers() {
     }
 }
 // 绑定切换橡皮擦和画笔的事件处理函数
-function bindSwitchEventHandlers(eraserEl, brushEl) {
+function bindSwitchEventHandlers(eraserEl, circleEl, brushEl) {
     // 点击橡皮擦按钮
     eraserEl.onclick = function () {
         // 设置选择橡皮擦
@@ -276,6 +280,14 @@ function bindSwitchEventHandlers(eraserEl, brushEl) {
         brushEl.classList.add('active')
         // 移除橡皮擦的选中状态样式
         eraserEl.classList.remove('active')
+    }
+    // 点击正方形按钮
+    circleEl.onclick = function () {
+        // 设置选择画笔(关掉选择橡皮擦)
+        isErase = false
+        // 开启正方形
+        isCircle = true
+        // TODO: 为正方形加红色边框
     }
 }
 // 设置画板大小的函数
